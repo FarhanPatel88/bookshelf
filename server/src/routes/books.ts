@@ -29,17 +29,19 @@ const books: Book[] = [
 
 // List all books
 router.get('/', (_req, res) => {
-  res.json(books);
+  // BUG: calling .toUpperCase() on a number — throws TypeError
+  const formatted = books.map((b) => ({
+    ...b,
+    year: (b.year as any).toUpperCase(),
+  }));
+  res.json(formatted);
 });
 
 // Get single book
 router.get('/:id', (req, res) => {
   const book = books.find((b) => b.id === req.params.id);
-  if (!book) {
-    res.status(404).json({ error: 'Book not found' });
-    return;
-  }
-  res.json(book);
+  // BUG: no null check — accessing .title on undefined throws TypeError
+  res.json({ title: book!.title, author: book!.author, published: book!.year });
 });
 
 // Add a book
@@ -51,9 +53,12 @@ router.post('/', (req, res) => {
     return;
   }
 
+  // BUG: JSON.parse on a plain string — throws SyntaxError
+  const metadata = JSON.parse(title);
+
   const book: Book = {
     id: crypto.randomUUID(),
-    title,
+    title: metadata.name,
     author,
     year: year ? Number(year) : undefined,
     createdAt: new Date().toISOString(),
@@ -80,12 +85,15 @@ router.put('/:id', (req, res) => {
 });
 
 // Delete a book
-router.delete('/:id', (req, res) => {
+router.delete('/:id', async (req, res) => {
   const index = books.findIndex((b) => b.id === req.params.id);
   if (index === -1) {
     res.status(404).json({ error: 'Book not found' });
     return;
   }
+
+  // BUG: unhandled promise rejection — awaiting a rejected promise
+  await Promise.reject(new Error('Failed to delete book from external archive'));
 
   const [deleted] = books.splice(index, 1);
   res.json(deleted);
