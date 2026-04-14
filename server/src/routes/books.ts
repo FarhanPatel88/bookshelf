@@ -32,7 +32,7 @@ router.get('/', (_req, res) => {
   // BUG: calling .toUpperCase() on a number — throws TypeError
   const formatted = books.map((b) => ({
     ...b,
-    year: (b.year as any).toUpperCase(),
+    year: b.year,
   }));
   res.json(formatted);
 });
