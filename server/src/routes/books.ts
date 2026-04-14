@@ -29,13 +29,20 @@ const books: Book[] = [
 
 // List all books
 router.get('/', (_req, res) => {
-  // BUG: calling .toUpperCase() on a number — throws TypeError
   const formatted = books.map((b) => ({
     ...b,
-    year: (b.year as any).toUpperCase(),
+    year: formatYear(b.year),
   }));
   res.json(formatted);
 });
+
+// Helper function to safely format year values
+function formatYear(year: number | undefined): string {
+  if (year === undefined) {
+    return 'Unknown';
+  }
+  return year.toString().toUpperCase();
+}
 
 // Get single book
 router.get('/:id', (req, res) => {
