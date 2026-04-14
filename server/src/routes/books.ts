@@ -44,6 +44,24 @@ router.get('/:id', (req, res) => {
   res.json({ title: book!.title, author: book!.author, published: book!.year });
 });
 
+// Parse title metadata safely
+function parseBookTitle(titleInput: string): { name: string } {
+  // If it looks like JSON, try to parse it
+  if (titleInput.trim().startsWith('{')) {
+    try {
+      const parsed = JSON.parse(titleInput);
+      if (parsed && typeof parsed === 'object' && parsed.name) {
+        return { name: parsed.name };
+      }
+    } catch (error) {
+      // Fall through to treat as plain string
+    }
+  }
+  
+  // Treat as plain string title
+  return { name: titleInput };
+}
+
 // Add a book
 router.post('/', (req, res) => {
   const { title, author, year } = req.body;
@@ -53,8 +71,7 @@ router.post('/', (req, res) => {
     return;
   }
 
-  // BUG: JSON.parse on a plain string — throws SyntaxError
-  const metadata = JSON.parse(title);
+  const metadata = parseBookTitle(title);
 
   const book: Book = {
     id: crypto.randomUUID(),
