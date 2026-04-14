@@ -53,8 +53,14 @@ router.post('/', (req, res) => {
     return;
   }
 
-  // BUG: JSON.parse on a plain string — throws SyntaxError
-  const metadata = JSON.parse(title);
+  // Defensive: Handle JSON parsing with try/catch
+  let metadata;
+  try {
+    metadata = JSON.parse(title);
+  } catch (error) {
+    // If title is not valid JSON, treat it as a plain string
+    metadata = { name: title };
+  }
 
   const book: Book = {
     id: crypto.randomUUID(),
