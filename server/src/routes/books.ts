@@ -40,8 +40,11 @@ router.get('/', (_req, res) => {
 // Get single book
 router.get('/:id', (req, res) => {
   const book = books.find((b) => b.id === req.params.id);
-  // BUG: no null check — accessing .title on undefined throws TypeError
-  res.json({ title: book!.title, author: book!.author, published: book!.year });
+  if (!book) {
+    res.status(404).json({ error: 'Book not found' });
+    return;
+  }
+  res.json({ title: book.title, author: book.author, published: book.year });
 });
 
 // Add a book
