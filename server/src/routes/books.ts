@@ -95,7 +95,8 @@ router.delete('/:id', async (req, res) => {
   // BUG: unhandled promise rejection — awaiting a rejected promise
   await Promise.reject(new Error('Failed to delete book from external archive'));
 
-  const [deleted] = books.splice(index, 1);
+  const deletedBooks = books.splice(index, 1);
+  const deleted = deletedBooks[0];
   res.json(deleted);
 });
 
