@@ -109,11 +109,13 @@ router.post('/', async (req, res) => {
     const data = (await response.json()) as Record<string, any>;
     const enriched = data[`ISBN:${isbn}`];
 
-    title = enriched.title;
-    author = enriched.authors[0].name;
-    year = enriched.publish_date
-      ? Number(String(enriched.publish_date).match(/\d{4}/)?.[0])
-      : undefined;
+    if (enriched) {
+      title = enriched.title;
+      author = enriched.authors[0].name;
+      year = enriched.publish_date
+        ? Number(String(enriched.publish_date).match(/\d{4}/)?.[0])
+        : undefined;
+    }
   }
 
   if (!title || !author) {
