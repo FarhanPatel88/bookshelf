@@ -29,6 +29,7 @@ export default function BookList({ refreshKey }: BookListProps) {
   }
 
   async function handleDelete(id: string) {
+    setBooks((prev) => prev.filter((b) => b.id !== id));
     await fetch(`/api/books/${id}`, { method: 'DELETE' });
     fetchBooks();
   }

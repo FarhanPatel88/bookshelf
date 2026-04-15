@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import AddBook from './components/AddBook';
 import BookList from './components/BookList';
+import SearchBar from './components/SearchBar';
 
 export default function App() {
   const [refreshKey, setRefreshKey] = useState(0);
@@ -12,6 +13,10 @@ export default function App() {
 
         <div className="mb-8 rounded-lg border border-gray-200 bg-white p-6">
           <AddBook onAdded={() => setRefreshKey((k) => k + 1)} />
+        </div>
+
+        <div className="mb-8 rounded-lg border border-gray-200 bg-white p-6">
+          <SearchBar />
         </div>
 
         <BookList refreshKey={refreshKey} />
