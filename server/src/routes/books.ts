@@ -72,11 +72,11 @@ router.get('/stats', (_req, res) => {
     averageYear: Math.round(averageYear),
     oldest: {
       title: oldest.title,
-      year: oldest.year!.toString().padStart(4, '0'),
+      year: oldest.year?.toString().padStart(4, '0') || 'Unknown',
     },
     newest: {
       title: newest.title,
-      year: newest.year!.toString().padStart(4, '0'),
+      year: newest.year?.toString().padStart(4, '0') || 'Unknown',
     },
   });
 });
