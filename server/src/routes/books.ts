@@ -28,9 +28,26 @@ const books: Book[] = [
 ];
 
 // List all books
-router.get('/', (_req, res) => {
+router.get('/', (req, res) => {
+  let sortedBooks = [...books];
+  
+  const sort = req.query.sort as string;
+  if (sort) {
+    sortedBooks.sort((a, b) => {
+      const aVal = a[sort as keyof Book];
+      const bVal = b[sort as keyof Book];
+      
+      if (typeof aVal === 'string' && typeof bVal === 'string') {
+        return aVal.localeCompare(bVal);
+      } else if (typeof aVal === 'number' && typeof bVal === 'number') {
+        return aVal - bVal;
+      }
+      return 0;
+    });
+  }
+  
   // BUG: calling .toUpperCase() on a number — throws TypeError
-  const formatted = books.map((b) => ({
+  const formatted = sortedBooks.map((b) => ({
     ...b,
     year: (b.year as any).toUpperCase(),
   }));
