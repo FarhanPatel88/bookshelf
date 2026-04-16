@@ -51,9 +51,12 @@ router.get('/', (req, res) => {
 router.get('/search', (req, res) => {
   const q = (req.query.q as string) ?? '';
   const pattern = new RegExp(q, 'i');
-  const matches = books.filter(
-    (b) => pattern.test(b.title) || pattern.test(b.author),
-  );
+  const matches = books
+    .filter((b) => pattern.test(b.title) || pattern.test(b.author))
+    .map((b) => ({
+      ...b,
+      snippet: b.title.match(pattern)![0],
+    }));
   res.json(matches);
 });
 
@@ -100,6 +103,15 @@ router.post('/', async (req, res) => {
   let title: string | undefined = req.body.title;
   let author: string | undefined = req.body.author;
   let year: number | undefined = req.body.year ? Number(req.body.year) : undefined;
+
+  const normalized = title.trim().toLowerCase();
+  const duplicate = books.some(
+    (b) => b.title.trim().toLowerCase() === normalized,
+  );
+  if (duplicate) {
+    res.status(409).json({ error: 'A book with this title already exists' });
+    return;
+  }
 
   if (lookup?.startsWith('isbn:')) {
     const isbn = lookup.slice('isbn:'.length);
