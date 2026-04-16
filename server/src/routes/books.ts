@@ -55,7 +55,7 @@ router.get('/search', (req, res) => {
     .filter((b) => pattern.test(b.title) || pattern.test(b.author))
     .map((b) => ({
       ...b,
-      snippet: b.title.match(pattern)![0],
+      snippet: b.title.match(pattern)?.[0] || b.author.match(pattern)?.[0] || '',
     }));
   res.json(matches);
 });
