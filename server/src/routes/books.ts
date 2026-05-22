@@ -36,20 +36,7 @@ router.get('/', (req, res) => {
   let results = books.slice();
 
   if (sort) {
-    const sortableFields = ['title', 'author'] as const;
-    type SortableField = typeof sortableFields[number];
-    
-    const isSortableField = (field: string): field is SortableField => {
-      return sortableFields.includes(field as SortableField);
-    };
-    
-    if (isSortableField(sort)) {
-      results.sort((a, b) => {
-        const aValue = a[sort] || '';
-        const bValue = b[sort] || '';
-        return aValue.localeCompare(bValue);
-      });
-    }
+    results.sort((a, b) => (a as any)[sort].localeCompare((b as any)[sort]));
   }
 
   const start = (page - 1) * limit;
