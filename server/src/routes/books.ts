@@ -36,7 +36,14 @@ router.get('/', (req, res) => {
   let results = books.slice();
 
   if (sort) {
-    results.sort((a, b) => (a as any)[sort].localeCompare((b as any)[sort]));
+    results.sort((a, b) => {
+      const aVal = (a as any)[sort];
+      const bVal = (b as any)[sort];
+      if (typeof aVal === 'string' && typeof bVal === 'string') {
+        return aVal.localeCompare(bVal);
+      }
+      return 0;
+    });
   }
 
   const start = (page - 1) * limit;
