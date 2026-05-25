@@ -36,7 +36,19 @@ router.get('/', (req, res) => {
   let results = books.slice();
 
   if (sort) {
-    results.sort((a, b) => (a as any)[sort].localeCompare((b as any)[sort]));
+    try {
+      results.sort((a, b) => {
+        const aVal = (a as any)[sort];
+        const bVal = (b as any)[sort];
+        if (aVal == null || bVal == null) {
+          return 0;
+        }
+        return String(aVal).localeCompare(String(bVal));
+      });
+    } catch (error) {
+      // If sorting fails, return unsorted results
+      console.warn(`Invalid sort field: ${sort}`);
+    }
   }
 
   const start = (page - 1) * limit;
