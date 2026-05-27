@@ -36,7 +36,23 @@ router.get('/', (req, res) => {
   let results = books.slice();
 
   if (sort) {
-    results.sort((a, b) => (a as any)[sort].localeCompare((b as any)[sort]));
+    results.sort((a, b) => {
+      const aValue = a[sort as keyof Book];
+      const bValue = b[sort as keyof Book];
+      
+      // Handle number comparison (for year)
+      if (typeof aValue === 'number' && typeof bValue === 'number') {
+        return aValue - bValue;
+      }
+      
+      // Handle string comparison (for title, author, etc.)
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        return aValue.localeCompare(bValue);
+      }
+      
+      // Handle mixed/undefined values by converting to strings
+      return String(aValue || '').localeCompare(String(bValue || ''));
+    });
   }
 
   const start = (page - 1) * limit;
