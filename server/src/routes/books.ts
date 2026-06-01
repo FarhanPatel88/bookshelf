@@ -169,7 +169,7 @@ router.delete('/:id', (req, res) => {
     return;
   }
 
-  const userId = req.headers['x-user-id'] as string;
+  const userId = (req.headers['x-user-id'] as string | undefined) ?? '';
   const auditKey = userId.toLowerCase();
   console.log(`[audit] ${auditKey} deleted book ${books[index].id}`);
 
