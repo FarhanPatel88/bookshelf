@@ -3,6 +3,48 @@ import type { Book } from '../types.js';
 
 const router = Router();
 
+// ---------------------------------------------------------------------------
+// Sort helpers
+// ---------------------------------------------------------------------------
+
+/** Fields that callers are permitted to sort by. */
+type SortableField = 'title' | 'author' | 'year' | 'createdAt';
+
+const SORTABLE_FIELDS: ReadonlySet<string> = new Set<SortableField>([
+  'title',
+  'author',
+  'year',
+  'createdAt',
+]);
+
+/** Narrow an arbitrary string to a validated SortableField. */
+function toSortableField(value: string): SortableField | undefined {
+  return SORTABLE_FIELDS.has(value) ? (value as SortableField) : undefined;
+}
+
+/**
+ * Type-aware comparator for Book records.
+ * - string fields  → localeCompare
+ * - numeric fields → arithmetic difference
+ * - undefined values sort last
+ */
+function compareBooks(a: Book, b: Book, field: SortableField): number {
+  const av: Book[SortableField] = a[field];
+  const bv: Book[SortableField] = b[field];
+
+  if (av === undefined && bv === undefined) return 0;
+  if (av === undefined) return 1;
+  if (bv === undefined) return -1;
+
+  if (typeof av === 'number' && typeof bv === 'number') {
+    return av - bv;
+  }
+
+  return String(av).localeCompare(String(bv));
+}
+
+// ---------------------------------------------------------------------------
+
 const books: Book[] = [
   {
     id: crypto.randomUUID(),
@@ -29,14 +71,21 @@ const books: Book[] = [
 
 // List all books (with optional sort + pagination)
 router.get('/', (req, res) => {
-  const sort = req.query.sort as string | undefined;
+  const rawSort = req.query.sort as string | undefined;
   const page = parseInt(req.query.page as string, 10);
   const limit = parseInt(req.query.limit as string, 10);
 
   let results = books.slice();
 
-  if (sort) {
-    results.sort((a, b) => (a as any)[sort].localeCompare((b as any)[sort]));
+  if (rawSort) {
+    const sortField = toSortableField(rawSort);
+    if (!sortField) {
+      res.status(400).json({
+        error: `Invalid sort field "${rawSort}". Allowed values: ${[...SORTABLE_FIELDS].join(', ')}.`,
+      });
+      return;
+    }
+    results.sort((a, b) => compareBooks(a, b, sortField));
   }
 
   const start = (page - 1) * limit;
