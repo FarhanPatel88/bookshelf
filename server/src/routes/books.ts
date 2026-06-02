@@ -104,7 +104,7 @@ router.post('/', async (req, res) => {
   let author: string | undefined = req.body.author;
   let year: number | undefined = req.body.year ? Number(req.body.year) : undefined;
 
-  const normalized = title.trim().toLowerCase();
+  const normalized = title?.trim().toLowerCase() ?? '';
   const duplicate = books.some(
     (b) => b.title.trim().toLowerCase() === normalized,
   );
