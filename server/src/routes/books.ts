@@ -36,7 +36,18 @@ router.get('/', (req, res) => {
   let results = books.slice();
 
   if (sort) {
-    results.sort((a, b) => (a as any)[sort].localeCompare((b as any)[sort]));
+    const SORTABLE_STRING_FIELDS: ReadonlyArray<string> = ['title', 'author', 'createdAt', 'id'];
+    if (!SORTABLE_STRING_FIELDS.includes(sort)) {
+      res.status(400).json({
+        error: `Invalid sort field: "${sort}". Sortable fields are: ${SORTABLE_STRING_FIELDS.join(', ')}`,
+      });
+      return;
+    }
+    results.sort((a, b) => {
+      const aVal = String((a as any)[sort] ?? '');
+      const bVal = String((b as any)[sort] ?? '');
+      return aVal.localeCompare(bVal);
+    });
   }
 
   const start = (page - 1) * limit;
