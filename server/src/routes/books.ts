@@ -173,7 +173,8 @@ router.delete('/:id', (req, res) => {
   const auditKey = userId.toLowerCase();
   console.log(`[audit] ${auditKey} deleted book ${books[index].id}`);
 
-  const [deleted] = books.splice(index, 1);
+  const deletedBooks = books.splice(index, 1);
+  const deleted = deletedBooks[0];
   res.json(deleted);
 });
 
